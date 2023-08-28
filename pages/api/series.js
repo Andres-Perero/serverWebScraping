@@ -51,12 +51,14 @@ export default async function handler(req, res) {
     //Guarda los detalles de las nuevas series utilizando tu función saveUpdateDataToFile
     for (const series of newSeries) {
       const details = await scraperSerieDetails(series.link);
+      //guardo los datos de los detalles de la serie 
       saveUpdateDataToFile(folders.dataSeriesDetails, series.title, details);
       const serieDetailsChapters = await serieDetailChapters(
         details.title,
         details.link,
         details.episodes
       );
+      // guardo los datos de los capitulos de la serie
       saveUpdateDataToFile(
         folders.dataSeriesDetailsChapters,
         serieDetailsChapters.title,
