@@ -1,23 +1,10 @@
-import { scraperFilterStatusTagsPagination } from "../../components/scraperFilterStatusTagsPagination/scraperFilterStatusTagsPagination"; // Ajusta la ruta a tu scraper
-import { updateDataGD } from "../../resourcesGD/updateFileContent"; // Ajusta la ruta a tu función de guardar y actualizar datos
+import { scraperFilterStatusTagsPagination } from "@/components/scraperFilterStatusTagsPagination/scraperFilterStatusTagsPagination"; // Ajusta la ruta a tu scraper
+import { saveDataToFileGD } from "@/components/saveDataToFileGD/saveDataToFileGD";
+
 const fs = require("fs");
-// nombre de las carpetas donde se aloja la informacion
 const folders = require("../../data-googleapis/route-rsc-files.json");
-// etiquetas para hacer el scraper
 const rsc_library = require("../../resources/library.json");
 
-const saveUpdateDataToFile = (folder, filename, data) => {
-  try {
-    const dataGD = updateDataGD(
-      folder,
-      filename,
-      JSON.stringify(data, null, 2)
-    );
-    return dataGD;
-  } catch (error) {
-    console.error("Error al guardar los datos en Google Drive:", error.message);
-  }
-};
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).end(); // Método no permitido
@@ -26,17 +13,17 @@ export default async function handler(req, res) {
     const { filterOptionsStatus, filterOptionsTags, highestPageLink } =
       await scraperFilterStatusTagsPagination();
     // Guarda los datos en archivos utilizando tu función saveUpdateDataToFile
-    saveUpdateDataToFile(
+    await saveDataToFileGD(
       folders.resourcesWebScraping,
       rsc_library.filterStatus,
       filterOptionsStatus
     );
-    saveUpdateDataToFile(
+    await saveDataToFileGD(
       folders.resourcesWebScraping,
       rsc_library.filterTags,
       filterOptionsTags
     );
-    saveUpdateDataToFile(
+    await saveDataToFileGD(
       folders.resourcesWebScraping,
       rsc_library.pagination,
       highestPageLink
@@ -44,9 +31,10 @@ export default async function handler(req, res) {
 
     // Envía el objeto con todos los datos en la respuesta
     res.status(200).json({
-      filterOptionsStatus,
-      filterOptionsTags,
-      highestPageLink,
+      data: "se actualizaron los sigts archivos",
+      status: rsc_library.filterStatus,
+      tags: rsc_library.filterTags,
+      pagination: rsc_library.pagination,
     });
   } catch (error) {
     console.error("Error al obtener los datos de filtros de estado:", error);

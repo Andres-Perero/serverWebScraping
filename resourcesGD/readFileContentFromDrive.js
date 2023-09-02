@@ -10,17 +10,28 @@ const auth = new google.auth.GoogleAuth({
 // Buscar el archivo por su nombre y en una carpeta específica
 async function findFileInFolder(folderId, filename) {
   const drive = google.drive({ version: "v3", auth });
-  try {
-    const response = await drive.files.list({
-      q: `'${folderId}' in parents and name = '${filename}'`,
-    });
+  let nextPageToken = null;
 
-    if (response.data.files.length > 0) {
-      return response.data.files[0];
-    } else {
-      console.log("Archivo no encontrado en la carpeta.");
-      return null;
-    }
+  try {
+    do {
+      const response = await drive.files.list({
+        q: `'${folderId}' in parents and name = '${filename}'`,
+        pageToken: nextPageToken,
+      });
+
+      const matchingFiles = response.data.files.filter(
+        (file) => file.name === filename
+      );
+
+      if (matchingFiles.length > 0) {
+        return matchingFiles[0]; // Devuelve el primer archivo encontrado
+      }
+
+      nextPageToken = response.data.nextPageToken; // Obtiene el token para la siguiente página
+    } while (nextPageToken); // Repite el proceso si hay más páginas
+
+    console.log("Archivo no encontrado en la carpeta.");
+    return null;
   } catch (error) {
     console.error("Error al buscar el archivo:", error.message);
     return null;
@@ -86,4 +97,4 @@ async function getAllFilesInFolder(folderId) {
   }
 }
 
-module.exports = { getDataGD, readFileContentFromDrive, getAllFilesInFolder };
+export { getDataGD, readFileContentFromDrive, getAllFilesInFolder };

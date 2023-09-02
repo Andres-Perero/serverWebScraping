@@ -28,10 +28,10 @@ async function uploadFileToDrive(folder, filename, fileContent) {
       fields: "id",
     });
 
-    console.log("Archivo subido a Google Drive. ID:", response.data.name);
+    console.log("Archivo subido a Google Drive");
   } catch (error) {
     console.error("Error al subir el archivo a Google Drive:", error.message);
   }
 }
 
-module.exports = { uploadFileToDrive };
+export { uploadFileToDrive };

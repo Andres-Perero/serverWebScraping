@@ -3,5 +3,7 @@
   "filterStatus": "filterStatus.json",
   "filterTags": "filterTags.json",
   "series": "series.json",
-  "sections": "sections.json"
+  "sections": "sections.json",
+  "idSerie": "IdSeries.json"
+
 }

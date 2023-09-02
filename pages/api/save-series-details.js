@@ -2,23 +2,12 @@ import {
   getDataGD,
   getAllFilesInFolder,
 } from "../../resourcesGD/readFileContentFromDrive";
-import { scraperSerieDetails } from "../../components/scraperSerieDetails/scraperSerieDetails";
-import { serieDetailChapters } from "@/components/scraperSerieDetailChapters/serieDetailChapters";
+
+import { getSeriesDetails } from "@/components/getDataSeries/getSeriesDetails";
+import { getSeriesChaptersDetails } from "@/components/getDataSeries/getSeriesChaptersDetails";
+
 const folders = require("../../data-googleapis/route-rsc-files.json");
 const rsc_library = require("../../resources/library.json");
-
-const saveUpdateDataToFile = (folder, filename, data) => {
-  try {
-    const dataGD = updateDataGD(
-      folder,
-      filename,
-      JSON.stringify(data, null, 2)
-    );
-    return dataGD;
-  } catch (error) {
-    console.error("Error al guardar los datos en Google Drive:", error.message);
-  }
-};
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -44,20 +33,12 @@ export default async function handler(req, res) {
     if (newSeries.length === 0) {
       return res.status(200).json({ data: "datos se mantienen actualizados" });
     }
-    //Guarda los detalles de las nuevas series utilizando tu función saveUpdateDataToFile
+
     for (const series of newSeries) {
-      const details = await scraperSerieDetails(series.link);
-      saveUpdateDataToFile(folders.dataSeriesDetails, series.title, details);
-      const serieDetailsChapters = await serieDetailChapters(
-        details.title,
-        details.link,
-        details.episodes
-      );
-      saveUpdateDataToFile(
-        folders.dataSeriesDetailsChapters,
-        serieDetailsChapters.title,
-        serieDetailsChapters
-      );
+      const {previousSaveDetails,details} = await getSeriesDetails(series);
+      if (details) {
+        await getSeriesChaptersDetails(details);
+      }
     }
     res.status(200).json({ data: "datos se actualizaron correctamente" });
   } catch (error) {

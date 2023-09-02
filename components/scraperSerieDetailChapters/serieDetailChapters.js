@@ -1,20 +1,24 @@
 const { scraperSerieDetailChapter } = require("./scraperSerieDetailChapter");
 
-const serieDetailChapters = async (title, link, chapters) => {
+const serieDetailChapters = async (idSerie,title, urlSerie, chapters) => {
   try {
     const chapterDetailsList = []; // Aquí almacenaremos los detalles de los capítulos
-
     for (const chapter of chapters) {
-      const chapterDetails = await scraperSerieDetailChapter(chapter.link);
-      chapterDetailsList.push(chapterDetails);
+      console.log("chapter: " + chapter.chapter);
+      const chapterDetails = await scraperSerieDetailChapter(
+        chapter.urlChapter
+      );
+      if (chapterDetails) {
+        chapterDetailsList.push(chapterDetails);
+      }
     }
 
     const serieDetailsChapters = {
+      idSerie:idSerie,
       title: title,
-      link: link,
-      chapters: chapterDetailsList
+      urlSerie: urlSerie,
+      chapters: chapterDetailsList,
     };
-
     return serieDetailsChapters; // Devolvemos los detalles completos de la serie
   } catch (error) {
     console.error("Error en el scraping del enlace:", error);
@@ -23,5 +27,4 @@ const serieDetailChapters = async (title, link, chapters) => {
   }
 };
 
-module.exports = { serieDetailChapters };
-
+export { serieDetailChapters };
